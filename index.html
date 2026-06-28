@@ -1,75 +1,35 @@
-<!DOCTYPE html>
-<html>
-<head>
-  <title>BORAX Local Status</title>
-
-  <style>
-    body {
-      margin: 0;
-      background: linear-gradient(#001a3a, #000814);
-      color: white;
-      font-family: Arial, sans-serif;
-      text-align: center;
-    }
-
-    .screen {
-      padding-top: 80px;
-    }
-
-    .box {
-      width: 420px;
-      margin: auto;
-      border: 2px solid white;
-      padding: 20px;
-      background: rgba(0,0,0,0.3);
-    }
-
-    #time {
-      font-size: 60px;
-      margin-bottom: 10px;
-    }
-
-    #date {
-      font-size: 18px;
-      opacity: 0.8;
-    }
-
-    #info {
-      margin-top: 20px;
-      font-size: 18px;
-      line-height: 1.5;
-    }
-
-    .label {
-      opacity: 0.7;
-      font-size: 14px;
-    }
-  </style>
-</head>
-
-<body onclick="startAudio()">
-
-<div class="screen">
-
-  <div class="box">
-
-    <div class="label">BORAX LOCAL STATUS</div>
-
-    <div id="time">--:--</div>
-    <div id="date">---</div>
-
-    <div id="info">
-      Loading weather data...
-    </div>
-
-  </div>
-
-</div>
-
-<audio id="music" loop>
-  <source src="music.mp3" type="audio/mpeg">
-</audio>
-
 <script>
 let ads = [
-  "AD: BOR
+  "AD: BORAX Laundry - Trusted since 1982",
+  "LOCAL NOTICE: Stay hydrated today",
+  "COMMUNITY: Visit Round Rock Park"
+];
+
+let adIndex = 0;
+
+function updateTime() {
+  const now = new Date();
+
+  let h = now.getHours();
+  let m = now.getMinutes();
+  let ampm = h >= 12 ? "PM" : "AM";
+
+  h = h % 12;
+  if (h === 0) h = 12;
+  if (m < 10) m = "0" + m;
+
+  document.getElementById("time").innerText = `${h}:${m} ${ampm}`;
+  document.getElementById("date").innerText = now.toDateString();
+}
+
+function rotateInfo() {
+  document.getElementById("info").innerText = ads[adIndex];
+  adIndex = (adIndex + 1) % ads.length;
+}
+
+setInterval(updateTime, 1000);
+setInterval(rotateInfo, 5000);
+
+updateTime();
+rotateInfo();
+</script>
