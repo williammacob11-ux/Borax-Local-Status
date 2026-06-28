@@ -1,11 +1,61 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>BORAX Local Status</title>
+
+  <style>
+    body {
+      margin: 0;
+      background: #001022;
+      color: white;
+      font-family: Arial, sans-serif;
+      text-align: center;
+    }
+
+    .box {
+      width: 420px;
+      margin: 120px auto;
+      border: 2px solid white;
+      padding: 20px;
+      background: rgba(0,0,0,0.4);
+    }
+
+    #time {
+      font-size: 60px;
+    }
+
+    #date {
+      font-size: 18px;
+      opacity: 0.8;
+    }
+
+    #info {
+      margin-top: 20px;
+      font-size: 18px;
+      min-height: 40px;
+    }
+  </style>
+</head>
+
+<body>
+
+  <div class="box">
+    <h3>BORAX LOCAL STATUS</h3>
+
+    <div id="time">--:--</div>
+    <div id="date">---</div>
+
+    <div id="info">Starting broadcast...</div>
+  </div>
+
 <script>
 let ads = [
-  "AD: BORAX Laundry - Trusted since 1982",
+  "BORAX: Laundry trusted since 1982",
   "LOCAL NOTICE: Stay hydrated today",
-  "COMMUNITY: Visit Round Rock Park"
+  "COMMUNITY: Round Rock parks open"
 ];
 
-let adIndex = 0;
+let i = 0;
 
 function updateTime() {
   const now = new Date();
@@ -22,14 +72,17 @@ function updateTime() {
   document.getElementById("date").innerText = now.toDateString();
 }
 
-function rotateInfo() {
-  document.getElementById("info").innerText = ads[adIndex];
-  adIndex = (adIndex + 1) % ads.length;
+function rotate() {
+  document.getElementById("info").innerText = ads[i];
+  i = (i + 1) % ads.length;
 }
 
 setInterval(updateTime, 1000);
-setInterval(rotateInfo, 5000);
+setInterval(rotate, 4000);
 
 updateTime();
-rotateInfo();
+rotate();
 </script>
+
+</body>
+</html>
