@@ -53,9 +53,7 @@
 let screens = [
   "AD: BORAX Laundry - Trusted since 1982",
   "LOCAL NOTICE: Stay hydrated today",
-  "COMMUNITY: Round Rock parks open",
-  "WEATHER: 91°F SUNNY\nHumidity: 62%\nWind: 8 mph",
-  "FORECAST:\nTomorrow 93°F Sunny\nLow 74°F"
+  "COMMUNITY: Round Rock parks open"
 ];
 
 let i = 0;
@@ -80,12 +78,34 @@ function rotate() {
   i = (i + 1) % screens.length;
 }
 
+// 🌤️ REAL WEATHER (Round Rock)
+async function loadWeather() {
+  try {
+    const res = await fetch("https://api.open-meteo.com/v1/forecast?latitude=30.5083&longitude=-97.6789&current=temperature_2m,weather_code&temperature_unit=fahrenheit");
+    const data = await res.json();
+
+    const temp = data.current.temperature_2m;
+    const code = data.current.weather_code;
+
+    let condition = "Clear";
+
+    if (code === 0) condition = "Clear";
+    else if (code <= 3) condition = "Partly Cloudy";
+    else if (code <= 67) condition = "Rain";
+    else condition = "Storm";
+
+    screens.push(`WEATHER: ${temp}°F ${condition}`);
+  } catch (e) {
+    screens.push("WEATHER: Unable to load data");
+  }
+}
+
 setInterval(updateTime, 1000);
 setInterval(rotate, 5000);
 
 updateTime();
 rotate();
+loadWeather();
 </script>
-
 </body>
 </html>
