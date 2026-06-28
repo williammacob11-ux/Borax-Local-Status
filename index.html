@@ -84,17 +84,34 @@ async function loadWeather() {
     const res = await fetch("https://api.open-meteo.com/v1/forecast?latitude=30.5083&longitude=-97.6789&current=temperature_2m,weather_code&temperature_unit=fahrenheit");
     const data = await res.json();
 
-    const temp = data.current.temperature_2m;
+    const temp = Math.round(data.current.temperature_2m);
     const code = data.current.weather_code;
 
-    let condition = "Clear";
+    let condition = "";
 
+    // 🌤️ Better weather mapping (Open-Meteo standard codes)
     if (code === 0) condition = "Clear";
-    else if (code <= 3) condition = "Partly Cloudy";
-    else if (code <= 67) condition = "Rain";
-    else condition = "Storm";
+    else if (code === 1 || code === 2) condition = "Mostly Sunny";
+    else if (code === 3) condition = "Cloudy";
+    else if (code >= 45 && code <= 48) condition = "Fog";
+    else if (code >= 51 && code <= 55) condition = "Drizzle";
+    else if (code >= 61 && code <= 65) condition = "Rain";
+    else if (code >= 66 && code <= 67) condition = "Freezing Rain";
+    else if (code >= 71 && code <= 77) condition = "Snow";
+    else if (code >= 80 && code <= 82) condition = "Rain Showers";
+    else if (code >= 95) condition = "Thunderstorms";
+    else condition = "Unknown";
 
-    screens.push(`WEATHER: ${temp}°F ${condition}`);
+    // 🌡️ Make it realistic for Texas feel
+    let vibe = "";
+    if (temp >= 95) vibe = "Very Hot";
+    else if (temp >= 85) vibe = "Hot";
+    else if (temp >= 70) vibe = "Warm";
+    else if (temp >= 50) vibe = "Cool";
+    else vibe = "Cold";
+
+    screens.push(`WEATHER:\n${temp}°F - ${condition}\nFeels like: ${vibe}`);
+    
   } catch (e) {
     screens.push("WEATHER: Unable to load data");
   }
