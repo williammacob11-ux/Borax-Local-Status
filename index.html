@@ -49,13 +49,44 @@
   </div>
 
 <script>
-let ads = [
-  "BORAX: Laundry trusted since 1982",
+let ads = [<script>
+let screens = [
+  "AD: BORAX Laundry - Trusted since 1982",
   "LOCAL NOTICE: Stay hydrated today",
-  "COMMUNITY: Round Rock parks open"
+  "COMMUNITY: Round Rock parks open",
+
+  "WEATHER: 91°F SUNNY\nHumidity: 62%\nWind: 8 mph",
+  "FORECAST: Tomorrow 93°F Sunny\nLow 74°F"
 ];
 
 let i = 0;
+
+function updateTime() {
+  const now = new Date();
+
+  let h = now.getHours();
+  let m = now.getMinutes();
+  let ampm = h >= 12 ? "PM" : "AM";
+
+  h = h % 12;
+  if (h === 0) h = 12;
+  if (m < 10) m = "0" + m;
+
+  document.getElementById("time").innerText = `${h}:${m} ${ampm}`;
+  document.getElementById("date").innerText = now.toDateString();
+}
+
+function rotate() {
+  document.getElementById("info").innerText = screens[i];
+  i = (i + 1) % screens.length;
+}
+
+setInterval(updateTime, 1000);
+setInterval(rotate, 5000);
+
+updateTime();
+rotate();
+</script>
 
 function updateTime() {
   const now = new Date();
