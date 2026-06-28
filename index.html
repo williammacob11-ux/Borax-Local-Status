@@ -8,7 +8,7 @@
       margin: 0;
       background: #001022;
       color: white;
-      font-family: Arial, sans-serif;
+      font-family: Arial;
       text-align: center;
     }
 
@@ -32,7 +32,8 @@
     #info {
       margin-top: 20px;
       font-size: 18px;
-      min-height: 40px;
+      white-space: pre-line;
+      min-height: 80px;
     }
   </style>
 </head>
@@ -49,14 +50,12 @@
   </div>
 
 <script>
-let ads = [<script>
 let screens = [
   "AD: BORAX Laundry - Trusted since 1982",
   "LOCAL NOTICE: Stay hydrated today",
   "COMMUNITY: Round Rock parks open",
-
   "WEATHER: 91°F SUNNY\nHumidity: 62%\nWind: 8 mph",
-  "FORECAST: Tomorrow 93°F Sunny\nLow 74°F"
+  "FORECAST:\nTomorrow 93°F Sunny\nLow 74°F"
 ];
 
 let i = 0;
@@ -83,33 +82,6 @@ function rotate() {
 
 setInterval(updateTime, 1000);
 setInterval(rotate, 5000);
-
-updateTime();
-rotate();
-</script>
-
-function updateTime() {
-  const now = new Date();
-
-  let h = now.getHours();
-  let m = now.getMinutes();
-  let ampm = h >= 12 ? "PM" : "AM";
-
-  h = h % 12;
-  if (h === 0) h = 12;
-  if (m < 10) m = "0" + m;
-
-  document.getElementById("time").innerText = `${h}:${m} ${ampm}`;
-  document.getElementById("date").innerText = now.toDateString();
-}
-
-function rotate() {
-  document.getElementById("info").innerText = ads[i];
-  i = (i + 1) % ads.length;
-}
-
-setInterval(updateTime, 1000);
-setInterval(rotate, 4000);
 
 updateTime();
 rotate();
