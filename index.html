@@ -3,36 +3,19 @@
 <head>
   <title>BORAX Local Status</title>
 
-  <style>
-.newsItem {
-  display: flex;
-  gap: 10px;
-  margin-bottom: 12px;
-  align-items: center;
-}
+  <!-- Google Sans Flex -->
+  <link href="https://fonts.googleapis.com/css2?family=Google+Sans+Flex:wght@100..1000&display=swap" rel="stylesheet">
 
-.newsItem img {
-  width: 80px;
-  height: 60px;
-  object-fit: cover;
-  border-radius: 6px;
-}
-
-.newsText {
-  font-size: 14px;
-}
-</style>
-  
   <style>
     body {
       margin: 0;
-      font-family: Arial;
+      font-family: "Google Sans Flex", Arial, sans-serif;
       color: white;
       transition: background 1s ease;
     }
 
     body.day {
-      background: url("https://images.unsplash.com/photo-1736091463678-002d46fd703d?q=80&w=1336&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D") center/cover no-repeat;
+      background: url("https://images.unsplash.com/photo-1736091463678-002d46fd703d?q=80&w=1336&auto=format&fit=crop") center/cover no-repeat;
     }
 
     body.night {
@@ -60,10 +43,26 @@
     .timeBig { font-size: 48px; }
 
     canvas { background: transparent; }
+
+    .newsItem {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 12px;
+      align-items: center;
+    }
+
+    .newsItem img {
+      width: 80px;
+      height: 60px;
+      object-fit: cover;
+      border-radius: 6px;
+    }
+
+    .newsText {
+      font-size: 14px;
+    }
   </style>
 </head>
-
-<body>
 
 <div class="container">
 
