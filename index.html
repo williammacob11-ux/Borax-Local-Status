@@ -1,18 +1,16 @@
 <!DOCTYPE html>
-
 <html>
 <head>
   <title>BORAX Local Status</title>
 
   <!-- Google Sans Flex -->
-
   <link href="https://fonts.googleapis.com/css2?family=Google+Sans+Flex:wght@100..1000&display=swap" rel="stylesheet">
 
   <style>
     body {
       margin: 0;
       font-family: "Google Sans Flex", Arial, sans-serif;
-      color: #e6e6e6;
+      color: white;
       transition: background 1s ease;
     }
 
@@ -21,15 +19,13 @@
     }
 
     body.night {
-      background: radial-gradient(circle at top, #0a0a0a, #000000);
-    }
-
-    body.night .tile {
-      background: rgba(0, 0, 0, 0.85);
-      border: 1px solid rgba(255, 255, 255, 0.15);
-      box-shadow: 0 8px 30px rgba(0,0,0,0.4);
-    }
-
+  background: radial-gradient(circle at top, #0a0a0a, #000000);
+}
+body.night .tile {
+  background: rgba(0, 0, 0, 0.85);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  box-shadow: 0 8px 30px rgba(0,0,0,0.4);
+}
     .container {
       display: grid;
       gap: 15px;
@@ -43,38 +39,23 @@
     body.night .container { grid-template-columns: 1fr 1fr; }
 
     .tile {
-      background: rgba(0,0,0,0.55);
-      border: 1px solid rgba(255,255,255,0.15);
-      padding: 20px;
-      backdrop-filter: blur(10px);
-      border-radius: 12px;
-      animation: fadeIn 0.6s ease;
-    }
+  background: rgba(0,0,0,0.55);
+  border: 1px solid rgba(255,255,255,0.15);
+  padding: 20px;
+  backdrop-filter: blur(10px);
+  border-radius: 12px;
+}
+    
 
-    .timeBig {
-      font-size: 64px;
-      font-weight: 600;
-    }
+    .timeBig { font-size: 48px; }
 
-    h3 {
-      margin-top: 0;
-      opacity: 0.85;
-    }
-
-    canvas {
-      background: transparent;
-    }
+    canvas { background: transparent; }
 
     .newsItem {
       display: flex;
       gap: 10px;
       margin-bottom: 12px;
       align-items: center;
-      transition: transform 0.2s ease;
-    }
-
-    .newsItem:hover {
-      transform: scale(1.02);
     }
 
     .newsItem img {
@@ -87,27 +68,52 @@
     .newsText {
       font-size: 14px;
     }
+    /* ---------- IMPROVEMENTS ---------- */
 
-    #news {
-      transition: opacity 0.4s ease;
-    }
+.tile {
+  border-radius: 12px;
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255,255,255,0.15);
+}
 
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(10px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
+body {
+  color: #e6e6e6;
+}
+
+.timeBig {
+  font-size: 64px;
+  font-weight: 600;
+  letter-spacing: 1px;
+}
+
+h3 {
+  margin-top: 0;
+  font-weight: 500;
+  opacity: 0.85;
+}
+
+.newsItem {
+  transition: transform 0.2s ease;
+}
+
+.newsItem:hover {
+  transform: scale(1.02);
+}
+
+.tile {
+  animation: fadeIn 0.6s ease;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
   </style>
-
 </head>
-
-<body>
 
 <div class="container">
 
-  <div id="greeting" style="font-size:18px; opacity:0.8;"></div>
-
   <!-- TIME -->
-
   <div class="tile">
     <h3>TIME</h3>
     <div class="timeBig" id="time">--:--</div>
@@ -116,27 +122,26 @@
   </div>
 
   <!-- WEATHER -->
-
   <div class="tile">
     <h3>ROUND ROCK WEATHER</h3>
     <div id="weather">Loading...</div>
   </div>
 
   <!-- NEWS -->
-
   <div class="tile" id="newsTile">
-    <h3>AUSTIN NEWS</h3>
-    <div id="news"></div>
-  </div>
-
+  <h3>AUSTIN NEWS</h3>
+  <div id="news"></div>
+</div>
+  
 </div>
 
 <script>
-const API_KEY = "YOUR_API_KEY_HERE";
+const API_KEY = "69d758106d8333cb8e806b8d3bff6d15";
 
-/* TIME */
+/* ---------------- TIME ---------------- */
 function updateTime() {
   const now = new Date();
+
   let h = now.getHours();
   let m = now.getMinutes();
   let s = now.getSeconds();
@@ -150,33 +155,27 @@ function updateTime() {
   document.getElementById("date").innerText = now.toDateString();
 }
 
-function setGreeting() {
-  const h = new Date().getHours();
-  let text = "Hello";
-
-  if (h < 12) text = "Good morning";
-  else if (h < 18) text = "Good afternoon";
-  else text = "Good evening";
-
-  document.getElementById("greeting").innerText = text;
-}
-
-/* CLOCK */
+/* ---------------- ANALOG CLOCK ---------------- */
 function drawClock() {
   const canvas = document.getElementById("clock");
   const ctx = canvas.getContext("2d");
   const now = new Date();
+
   const radius = 60;
 
   ctx.clearRect(0,0,140,140);
+
   ctx.save();
   ctx.translate(70,70);
 
+  // outer circle
   ctx.beginPath();
   ctx.arc(0,0,radius,0,Math.PI*2);
   ctx.strokeStyle="white";
+  ctx.lineWidth = 2;
   ctx.stroke();
 
+  // tick marks
   for (let i=0;i<12;i++) {
     ctx.beginPath();
     ctx.rotate(Math.PI/6);
@@ -187,6 +186,7 @@ function drawClock() {
 
   ctx.rotate(-Math.PI*2);
 
+  // hour hand
   const hr = now.getHours()%12;
   ctx.save();
   ctx.rotate((Math.PI/6)*hr + (Math.PI/360)*now.getMinutes());
@@ -197,27 +197,31 @@ function drawClock() {
   ctx.stroke();
   ctx.restore();
 
+  // minute hand
   ctx.save();
   ctx.rotate((Math.PI/30)*now.getMinutes());
   ctx.beginPath();
   ctx.moveTo(0,0);
   ctx.lineTo(0,-45);
+  ctx.lineWidth = 3;
   ctx.stroke();
   ctx.restore();
 
+  // second hand
   ctx.save();
   ctx.strokeStyle="red";
   ctx.rotate((Math.PI/30)*now.getSeconds());
   ctx.beginPath();
   ctx.moveTo(0,0);
   ctx.lineTo(0,-55);
+  ctx.lineWidth = 2;
   ctx.stroke();
   ctx.restore();
 
   ctx.restore();
 }
 
-/* WEATHER */
+/* ---------------- WEATHER ---------------- */
 function getWeatherEmoji(main) {
   if (!main) return "🌡️";
   if (main.includes("Cloud")) return "☁️";
@@ -230,37 +234,52 @@ function getWeatherEmoji(main) {
 
 async function loadWeather() {
   try {
+    // NOTE: switching to One Call style would give UV index properly
     const res = await fetch(
       `https://api.openweathermap.org/data/2.5/weather?lat=30.5083&lon=-97.6789&units=imperial&appid=${API_KEY}`
     );
 
     const data = await res.json();
+
     const emoji = getWeatherEmoji(data.weather[0].main);
 
     document.getElementById("weather").innerHTML = `
-<span style="font-size:11px; opacity:0.5">
-Updated ${new Date().toLocaleTimeString()}
-</span><br>
+  ${emoji} <span style="font-size:28px"><b>${Math.round(data.main.temp)}°F</b></span><br>
+  <span style="opacity:0.85">${data.weather[0].main}</span><br><br>
 
-${emoji} <span style="font-size:28px"><b>${Math.round(data.main.temp)}°F</b></span><br>
-<span style="opacity:0.85">${data.weather[0].main}</span><br><br>
-
-<span style="opacity:0.70">
-  Feels ${Math.round(data.main.feels_like)}° • 
-  Humidity ${data.main.humidity}% • 
-  Wind ${data.wind.speed} mph
-</span>
+  <span style="opacity:0.70">
+    Feels ${Math.round(data.main.feels_like)}° • 
+    Humidity ${data.main.humidity}% • 
+    Wind ${data.wind.speed} mph
+  </span>
 `;
   } catch {
     document.getElementById("weather").innerText = "Weather unavailable";
   }
 }
 
-/* NEWS */
+/* ---------------- REAL NEWS (API) ---------------- */
 const newsData = [
-  { title: "Austin housing debate continues", img: "https://images.unsplash.com/photo-1508057198894-247b23fe5ade" },
-  { title: "Triple-digit heat expected", img: "https://images.unsplash.com/photo-1501973801540-537f08ccae7b" },
-  { title: "New shops open in Round Rock", img: "https://images.unsplash.com/photo-1492724441997-5dc865305da7" }
+  {
+    title: "KVUE: Austin City Council debates housing affordability plan",
+    img: "https://images.unsplash.com/photo-1508057198894-247b23fe5ade"
+  },
+  {
+    title: "KVUE: Triple-digit heat expected across Central Texas this week",
+    img: "https://images.unsplash.com/photo-1501973801540-537f08ccae7b"
+  },
+  {
+    title: "KVUE: New restaurants and shops opening in Round Rock",
+    img: "https://images.unsplash.com/photo-1492724441997-5dc865305da7"
+  },
+  {
+    title: "KVUE: Heavy traffic reported along I-35 corridor",
+    img: "https://images.unsplash.com/photo-1503376780353-7e6692767b70"
+  },
+  {
+    title: "KVUE: Storm chances increase later this week in Austin area",
+    img: "https://images.unsplash.com/photo-1500674425229-f692875b0ab7"
+  }
 ];
 
 let newsIndex = 0;
@@ -273,6 +292,7 @@ function loadNews() {
 
     for (let i = 0; i < 3; i++) {
       const index = (newsIndex + i) % newsData.length;
+
       html += `
         <div class="newsItem">
           <img src="${newsData[index].img}">
@@ -281,29 +301,25 @@ function loadNews() {
       `;
     }
 
-    el.style.opacity = 0;
-    setTimeout(() => {
-      el.innerHTML = html;
-      el.style.opacity = 1;
-    }, 200);
-
+    el.innerHTML = html;
     newsIndex++;
   }
 
   renderNews();
   setInterval(renderNews, 6000);
 }
-
-/* MODE */
+/* ---------------- MODE ---------------- */
 function setMode() {
   const hour = new Date().getHours();
   const isDay = hour >= 9 && hour < 22;
 
   document.body.className = isDay ? "day" : "night";
-  document.getElementById("newsTile").style.display = isDay ? "block" : "none";
+
+  document.getElementById("newsTile").style.display =
+    isDay ? "block" : "none";
 }
 
-/* LOOP */
+/* ---------------- LOOP ---------------- */
 setInterval(updateTime, 1000);
 setInterval(drawClock, 1000);
 
@@ -312,7 +328,6 @@ drawClock();
 loadWeather();
 loadNews();
 setMode();
-setGreeting();
 setInterval(loadWeather, 900000);
 </script>
 
