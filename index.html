@@ -19,9 +19,12 @@
     }
 
     body.night {
-      background: #000;
-    }
-
+  background: radial-gradient(circle at top, #0a0a0a, #000000);
+}
+body.night .tile {
+  background: rgba(0, 0, 0, 0.85);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+}
     .container {
       display: grid;
       gap: 15px;
@@ -197,15 +200,15 @@ async function loadWeather() {
     const emoji = getWeatherEmoji(data.weather[0].main);
 
     document.getElementById("weather").innerHTML = `
-      ${emoji} <b>${Math.round(data.main.temp)}°F</b><br>
-      ${data.weather[0].main}<br><br>
+  ${emoji} <b>${Math.round(data.main.temp)}°F</b><br>
+  <span style="opacity:0.85">${data.weather[0].main}</span><br><br>
 
-      Feels Like: ${Math.round(data.main.feels_like)}°F<br>
-      Humidity: ${data.main.humidity}%<br>
-      Wind: ${data.wind.speed} mph<br>
-      Visibility: ${(data.visibility/1609).toFixed(1)} mi<br>
-      Pressure: ${data.main.pressure} hPa<br>
-    `;
+  <span style="opacity:0.70">Feels Like:</span> ${Math.round(data.main.feels_like)}°F<br>
+  <span style="opacity:0.70">Humidity:</span> ${data.main.humidity}%<br>
+  <span style="opacity:0.70">Wind:</span> ${data.wind.speed} mph<br>
+  <span style="opacity:0.70">Visibility:</span> ${(data.visibility/1609).toFixed(1)} mi<br>
+  <span style="opacity:0.70">Pressure:</span> ${data.main.pressure} hPa<br>
+`;
   } catch {
     document.getElementById("weather").innerText = "Weather unavailable";
   }
