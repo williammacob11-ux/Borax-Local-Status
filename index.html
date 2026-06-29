@@ -194,18 +194,35 @@ async function loadWeather() {
 
 /* ---------------- REAL NEWS (API) ---------------- */
 async function loadNews() {
+  const el = document.getElementById("news");
+
   try {
+    el.innerHTML = "Fetching KVUE feed...";
+
+    const url = "https://www.kvue.com/feeds/syndication/rss/news";
+
     const res = await fetch(
-      "https://api.allorigins.win/raw?url=" +
-      encodeURIComponent("https://www.kvue.com/feeds/syndication/rss/news")
+      "https://api.allorigins.win/raw?url=" + encodeURIComponent(url)
     );
 
+    if (!res.ok) {
+      throw new Error("HTTP error: " + res.status);
+    }
+
     const text = await res.text();
+
+    if (!text || text.length < 50) {
+      throw new Error("Empty RSS response");
+    }
 
     const parser = new DOMParser();
     const xml = parser.parseFromString(text, "text/xml");
 
     const items = xml.querySelectorAll("item");
+
+    if (!items.length) {
+      throw new Error("No RSS items found");
+    }
 
     let output = [];
 
@@ -214,12 +231,12 @@ async function loadNews() {
       if (title) output.push("• " + title);
     }
 
-    document.getElementById("news").innerHTML = output.join("<br>");
+    el.innerHTML = output.join("<br>");
 
   } catch (err) {
-    document.getElementById("news").innerHTML =
-      "📰 KVUE news temporarily unavailable";
-    console.log(err);
+    console.log("NEWS ERROR:", err);
+    el.innerHTML =
+      "📰 KVUE news failed (check console)";
   }
 }
 /* ---------------- MODE ---------------- */
