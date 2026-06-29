@@ -2,334 +2,590 @@
 <html>
 <head>
   <title>BORAX Local Status</title>
-
-  <!-- Google Sans Flex -->
   <link href="https://fonts.googleapis.com/css2?family=Google+Sans+Flex:wght@100..1000&display=swap" rel="stylesheet">
-
   <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
     body {
-      margin: 0;
       font-family: "Google Sans Flex", Arial, sans-serif;
-      color: white;
+      color: #e6e6e6;
       transition: background 1s ease;
+      min-height: 100vh;
     }
 
     body.day {
-      background: url("https://images.unsplash.com/photo-1736091463678-002d46fd703d?q=80&w=1336&auto=format&fit=crop") center/cover no-repeat;
+      background: url("https://images.unsplash.com/photo-1736091463678-002d46fd703d?q=80&w=1336&auto=format&fit=crop") center/cover no-repeat fixed;
     }
 
     body.night {
-  background: radial-gradient(circle at top, #0a0a0a, #000000);
-}
-body.night .tile {
-  background: rgba(0, 0, 0, 0.85);
-  border: 1px solid rgba(255, 255, 255, 0.15);
-  box-shadow: 0 8px 30px rgba(0,0,0,0.4);
-}
-    .container {
-      display: grid;
-      gap: 15px;
-      padding: 20px;
-      height: 100vh;
-      box-sizing: border-box;
-      backdrop-filter: blur(14px);
+      background: radial-gradient(circle at top, #0a0a0a, #000000);
     }
 
-    body.day .container { grid-template-columns: 1fr 1fr 1fr; }
-    body.night .container { grid-template-columns: 1fr 1fr; }
+    .container {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      grid-template-rows: auto auto;
+      gap: 14px;
+      padding: 16px;
+      min-height: 100vh;
+    }
+
+    /* Night: hide traffic/AQI that need map, collapse to 2 col */
+    body.night .container {
+      grid-template-columns: 1fr 1fr;
+    }
+
+    body.night #trafficTile,
+    body.night #newsTile { display: none; }
 
     .tile {
-  background: rgba(0,0,0,0.55);
-  border: 1px solid rgba(255,255,255,0.15);
-  padding: 20px;
-  backdrop-filter: blur(10px);
-  border-radius: 12px;
-}
-    
+      background: rgba(0,0,0,0.58);
+      border: 1px solid rgba(255,255,255,0.14);
+      border-radius: 14px;
+      padding: 18px;
+      backdrop-filter: blur(12px);
+      animation: fadeIn 0.6s ease;
+    }
 
-    .timeBig { font-size: 48px; }
+    body.night .tile {
+      background: rgba(0,0,0,0.85);
+      border: 1px solid rgba(255,255,255,0.15);
+      box-shadow: 0 8px 30px rgba(0,0,0,0.4);
+    }
 
-    canvas { background: transparent; }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
 
+    h3 {
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      opacity: 0.55;
+      margin-bottom: 10px;
+    }
+
+    /* ---- TIME TILE ---- */
+    #timeTile {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .timeBig {
+      font-size: 42px;
+      font-weight: 600;
+      letter-spacing: 0.5px;
+      line-height: 1;
+    }
+
+    #date {
+      font-size: 13px;
+      opacity: 0.6;
+      margin-bottom: 6px;
+    }
+
+    #clock {
+      display: block;
+    }
+
+    /* ---- WEATHER TILE ---- */
+    #weatherTile {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .weather-main {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      margin-bottom: 10px;
+    }
+
+    .weather-emoji {
+      font-size: 52px;
+      line-height: 1;
+    }
+
+    .weather-temp-block {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .weather-temp {
+      font-size: 56px;
+      font-weight: 700;
+      line-height: 1;
+    }
+
+    .weather-desc {
+      font-size: 16px;
+      opacity: 0.8;
+      margin-top: 2px;
+    }
+
+    .weather-feels {
+      font-size: 20px;
+      font-weight: 500;
+      margin-bottom: 10px;
+      color: #a8d8ff;
+    }
+
+    .weather-details {
+      font-size: 13px;
+      opacity: 0.65;
+      margin-bottom: 14px;
+    }
+
+    /* ---- FORECAST STRIP ---- */
+    .forecast-strip {
+      display: flex;
+      gap: 6px;
+      margin-top: auto;
+    }
+
+    .forecast-day {
+      flex: 1;
+      background: rgba(255,255,255,0.07);
+      border-radius: 8px;
+      padding: 8px 4px;
+      text-align: center;
+      font-size: 12px;
+    }
+
+    .forecast-day .fd-day { opacity: 0.6; font-size: 11px; margin-bottom: 4px; }
+    .forecast-day .fd-emoji { font-size: 20px; margin: 2px 0; }
+    .forecast-day .fd-hi { font-weight: 600; }
+    .forecast-day .fd-lo { opacity: 0.55; font-size: 11px; }
+
+    /* ---- AQI TILE ---- */
+    .aqi-main {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      margin-bottom: 12px;
+    }
+
+    .aqi-circle {
+      width: 72px;
+      height: 72px;
+      border-radius: 50%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      flex-shrink: 0;
+    }
+
+    .aqi-circle .aqi-num { font-size: 28px; line-height: 1; }
+    .aqi-circle .aqi-label { font-size: 9px; letter-spacing: 1px; opacity: 0.85; margin-top: 2px; }
+
+    .aqi-desc-block .aqi-status { font-size: 18px; font-weight: 600; margin-bottom: 4px; }
+    .aqi-desc-block .aqi-advice { font-size: 12px; opacity: 0.7; line-height: 1.4; }
+
+    .aqi-components {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 6px;
+      margin-top: 10px;
+    }
+
+    .aqi-comp {
+      background: rgba(255,255,255,0.07);
+      border-radius: 8px;
+      padding: 8px 10px;
+      font-size: 12px;
+    }
+
+    .aqi-comp .comp-name { opacity: 0.55; font-size: 10px; letter-spacing: 0.5px; margin-bottom: 2px; }
+    .aqi-comp .comp-val { font-weight: 600; }
+
+    /* ---- TRAFFIC TILE ---- */
+    #trafficTile {
+      grid-column: 1 / -1;
+    }
+
+    .traffic-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 10px;
+    }
+
+    .traffic-badge {
+      font-size: 11px;
+      background: rgba(255,255,255,0.12);
+      border-radius: 20px;
+      padding: 3px 10px;
+      opacity: 0.85;
+      transition: opacity 0.3s;
+    }
+
+    .map-wrapper {
+      position: relative;
+      width: 100%;
+      height: 300px;
+      border-radius: 10px;
+      overflow: hidden;
+    }
+
+    .map-wrapper iframe {
+      width: 100%;
+      height: 100%;
+      border: none;
+      border-radius: 10px;
+      transition: opacity 0.5s ease;
+    }
+
+    /* ---- NEWS TILE ---- */
     .newsItem {
       display: flex;
       gap: 10px;
       margin-bottom: 12px;
       align-items: center;
+      transition: transform 0.2s ease;
     }
+
+    .newsItem:hover { transform: scale(1.02); }
 
     .newsItem img {
       width: 80px;
       height: 60px;
       object-fit: cover;
       border-radius: 6px;
+      flex-shrink: 0;
     }
 
-    .newsText {
-      font-size: 14px;
-    }
-    /* ---------- IMPROVEMENTS ---------- */
-
-.tile {
-  border-radius: 12px;
-  backdrop-filter: blur(10px);
-  border: 1px solid rgba(255,255,255,0.15);
-}
-
-body {
-  color: #e6e6e6;
-}
-
-.timeBig {
-  font-size: 64px;
-  font-weight: 600;
-  letter-spacing: 1px;
-}
-
-h3 {
-  margin-top: 0;
-  font-weight: 500;
-  opacity: 0.85;
-}
-
-.newsItem {
-  transition: transform 0.2s ease;
-}
-
-.newsItem:hover {
-  transform: scale(1.02);
-}
-
-.tile {
-  animation: fadeIn 0.6s ease;
-}
-
-@keyframes fadeIn {
-  from { opacity: 0; transform: translateY(10px); }
-  to { opacity: 1; transform: translateY(0); }
-}
+    .newsText { font-size: 13px; line-height: 1.4; }
   </style>
 </head>
+<body>
 
 <div class="container">
 
   <!-- TIME -->
-  <div class="tile">
-    <h3>TIME</h3>
+  <div class="tile" id="timeTile">
+    <h3>Time</h3>
     <div class="timeBig" id="time">--:--</div>
     <div id="date">---</div>
-    <canvas id="clock" width="140" height="140"></canvas>
+    <canvas id="clock" width="110" height="110"></canvas>
   </div>
 
   <!-- WEATHER -->
-  <div class="tile">
-    <h3>ROUND ROCK WEATHER</h3>
-    <div id="weather">Loading...</div>
+  <div class="tile" id="weatherTile">
+    <h3>Round Rock Weather</h3>
+    <div id="weather"><span style="opacity:0.5">Loading...</span></div>
+  </div>
+
+  <!-- AQI -->
+  <div class="tile" id="aqiTile">
+    <h3>Air Quality · Round Rock</h3>
+    <div id="aqi"><span style="opacity:0.5">Loading...</span></div>
+  </div>
+
+  <!-- TRAFFIC (full width) -->
+  <div class="tile" id="trafficTile">
+    <div class="traffic-header">
+      <h3>Local Traffic</h3>
+      <div class="traffic-badge" id="trafficBadge">US-183A / 183</div>
+    </div>
+    <div class="map-wrapper">
+      <iframe id="trafficMap" allowfullscreen loading="lazy"
+        referrerpolicy="no-referrer-when-downgrade"
+        src="https://www.google.com/maps/embed/v1/view?key=AIzaSyD-9tSrke72PouQMnMX-a7eZSW0jkFMBWY&center=30.5200,-97.7900&zoom=12&maptype=roadmap">
+      </iframe>
+    </div>
   </div>
 
   <!-- NEWS -->
   <div class="tile" id="newsTile">
-  <h3>AUSTIN NEWS</h3>
-  <div id="news"></div>
-</div>
-  
+    <h3>Austin News</h3>
+    <div id="news"></div>
+  </div>
+
 </div>
 
 <script>
-const API_KEY = "69d758106d8333cb8e806b8d3bff6d15";
+const OWM_KEY = "69d758106d8333cb8e806b8d3bff6d15";
+const LAT = 30.5083, LON = -97.6789;
 
-/* ---------------- TIME ---------------- */
+/* ============ TIME ============ */
 function updateTime() {
   const now = new Date();
-
-  let h = now.getHours();
-  let m = now.getMinutes();
-  let s = now.getSeconds();
+  let h = now.getHours(), m = now.getMinutes(), s = now.getSeconds();
   const ampm = h >= 12 ? "PM" : "AM";
-
   h = h % 12 || 12;
-  m = m < 10 ? "0" + m : m;
-  s = s < 10 ? "0" + s : s;
-
-  document.getElementById("time").innerText = `${h}:${m}:${s} ${ampm}`;
+  document.getElementById("time").innerText =
+    `${h}:${String(m).padStart(2,"0")}:${String(s).padStart(2,"0")} ${ampm}`;
   document.getElementById("date").innerText = now.toDateString();
 }
 
-/* ---------------- ANALOG CLOCK ---------------- */
+/* ============ ANALOG CLOCK ============ */
 function drawClock() {
   const canvas = document.getElementById("clock");
   const ctx = canvas.getContext("2d");
   const now = new Date();
+  const cx = 55, cy = 55, r = 48;
 
-  const radius = 60;
-
-  ctx.clearRect(0,0,140,140);
-
+  ctx.clearRect(0, 0, 110, 110);
   ctx.save();
-  ctx.translate(70,70);
+  ctx.translate(cx, cy);
 
-  // outer circle
+  // face
   ctx.beginPath();
-  ctx.arc(0,0,radius,0,Math.PI*2);
-  ctx.strokeStyle="white";
-  ctx.lineWidth = 2;
+  ctx.arc(0, 0, r, 0, Math.PI * 2);
+  ctx.strokeStyle = "rgba(255,255,255,0.4)";
+  ctx.lineWidth = 1.5;
   ctx.stroke();
 
-  // tick marks
-  for (let i=0;i<12;i++) {
+  // ticks
+  for (let i = 0; i < 12; i++) {
+    const angle = (Math.PI / 6) * i;
     ctx.beginPath();
-    ctx.rotate(Math.PI/6);
-    ctx.moveTo(0,-radius);
-    ctx.lineTo(0,-radius+10);
+    ctx.moveTo(Math.sin(angle) * (r - 8), -Math.cos(angle) * (r - 8));
+    ctx.lineTo(Math.sin(angle) * r, -Math.cos(angle) * r);
+    ctx.strokeStyle = "rgba(255,255,255,0.5)";
+    ctx.lineWidth = 1.5;
     ctx.stroke();
   }
 
-  ctx.rotate(-Math.PI*2);
+  const hr  = now.getHours() % 12;
+  const min = now.getMinutes();
+  const sec = now.getSeconds();
 
-  // hour hand
-  const hr = now.getHours()%12;
+  // hour
+  const hAngle = (Math.PI / 6) * hr + (Math.PI / 360) * min;
   ctx.save();
-  ctx.rotate((Math.PI/6)*hr + (Math.PI/360)*now.getMinutes());
-  ctx.beginPath();
-  ctx.moveTo(0,0);
-  ctx.lineTo(0,-30);
-  ctx.lineWidth = 4;
-  ctx.stroke();
+  ctx.rotate(hAngle);
+  ctx.beginPath(); ctx.moveTo(0, 5); ctx.lineTo(0, -24);
+  ctx.strokeStyle = "white"; ctx.lineWidth = 3; ctx.lineCap = "round"; ctx.stroke();
   ctx.restore();
 
-  // minute hand
+  // minute
+  const mAngle = (Math.PI / 30) * min;
   ctx.save();
-  ctx.rotate((Math.PI/30)*now.getMinutes());
-  ctx.beginPath();
-  ctx.moveTo(0,0);
-  ctx.lineTo(0,-45);
-  ctx.lineWidth = 3;
-  ctx.stroke();
+  ctx.rotate(mAngle);
+  ctx.beginPath(); ctx.moveTo(0, 6); ctx.lineTo(0, -36);
+  ctx.strokeStyle = "white"; ctx.lineWidth = 2; ctx.lineCap = "round"; ctx.stroke();
   ctx.restore();
 
-  // second hand
+  // second
+  const sAngle = (Math.PI / 30) * sec;
   ctx.save();
-  ctx.strokeStyle="red";
-  ctx.rotate((Math.PI/30)*now.getSeconds());
-  ctx.beginPath();
-  ctx.moveTo(0,0);
-  ctx.lineTo(0,-55);
-  ctx.lineWidth = 2;
-  ctx.stroke();
+  ctx.rotate(sAngle);
+  ctx.beginPath(); ctx.moveTo(0, 8); ctx.lineTo(0, -43);
+  ctx.strokeStyle = "#ff4444"; ctx.lineWidth = 1.5; ctx.lineCap = "round"; ctx.stroke();
   ctx.restore();
 
   ctx.restore();
 }
 
-/* ---------------- WEATHER ---------------- */
-function getWeatherEmoji(main) {
+/* ============ WEATHER ============ */
+function weatherEmoji(main) {
   if (!main) return "🌡️";
   if (main.includes("Cloud")) return "☁️";
-  if (main.includes("Rain")) return "🌧️";
+  if (main.includes("Rain"))  return "🌧️";
   if (main.includes("Thunder")) return "⛈️";
   if (main.includes("Clear")) return "☀️";
-  if (main.includes("Snow")) return "❄️";
+  if (main.includes("Snow"))  return "❄️";
   return "🌤️";
 }
 
 async function loadWeather() {
   try {
-    // NOTE: switching to One Call style would give UV index properly
-    const res = await fetch(
-      `https://api.openweathermap.org/data/2.5/weather?lat=30.5083&lon=-97.6789&units=imperial&appid=${API_KEY}`
-    );
+    const [curRes, fcRes] = await Promise.all([
+      fetch(`https://api.openweathermap.org/data/2.5/weather?lat=${LAT}&lon=${LON}&units=imperial&appid=${OWM_KEY}`),
+      fetch(`https://api.openweathermap.org/data/2.5/forecast?lat=${LAT}&lon=${LON}&units=imperial&appid=${OWM_KEY}`)
+    ]);
 
-    const data = await res.json();
+    const cur = await curRes.json();
+    const fc  = await fcRes.json();
 
-    const emoji = getWeatherEmoji(data.weather[0].main);
+    const emoji = weatherEmoji(cur.weather[0].main);
 
+    // Current conditions
     document.getElementById("weather").innerHTML = `
-  ${emoji} <span style="font-size:28px"><b>${Math.round(data.main.temp)}°F</b></span><br>
-  <span style="opacity:0.85">${data.weather[0].main}</span><br><br>
+      <div class="weather-main">
+        <div class="weather-emoji">${emoji}</div>
+        <div class="weather-temp-block">
+          <div class="weather-temp">${Math.round(cur.main.temp)}°F</div>
+          <div class="weather-desc">${cur.weather[0].main}</div>
+        </div>
+      </div>
+      <div class="weather-feels">Feels like ${Math.round(cur.main.feels_like)}°F</div>
+      <div class="weather-details">
+        💧 Humidity ${cur.main.humidity}% &nbsp;·&nbsp; 💨 Wind ${Math.round(cur.wind.speed)} mph
+      </div>
+      <div class="forecast-strip" id="forecastStrip"></div>
+    `;
 
-  <span style="opacity:0.70">
-    Feels ${Math.round(data.main.feels_like)}° • 
-    Humidity ${data.main.humidity}% • 
-    Wind ${data.wind.speed} mph
-  </span>
-`;
-  } catch {
+    // Build 5-day forecast (one reading per day ~noon)
+    const days = {};
+    for (const item of fc.list) {
+      const d = new Date(item.dt * 1000);
+      const key = d.toDateString();
+      if (!days[key]) days[key] = { highs: [], lows: [], icons: [] };
+      days[key].highs.push(item.main.temp_max);
+      days[key].lows.push(item.main.temp_min);
+      days[key].icons.push(item.weather[0].main);
+    }
+
+    const dayKeys = Object.keys(days).slice(0, 5);
+    const strip = document.getElementById("forecastStrip");
+    if (strip) {
+      strip.innerHTML = dayKeys.map(k => {
+        const d    = days[k];
+        const hi   = Math.round(Math.max(...d.highs));
+        const lo   = Math.round(Math.min(...d.lows));
+        const icon = weatherEmoji(d.icons[Math.floor(d.icons.length / 2)]);
+        const label = new Date(k).toLocaleDateString("en-US", { weekday: "short" });
+        return `
+          <div class="forecast-day">
+            <div class="fd-day">${label}</div>
+            <div class="fd-emoji">${icon}</div>
+            <div class="fd-hi">${hi}°</div>
+            <div class="fd-lo">${lo}°</div>
+          </div>`;
+      }).join("");
+    }
+
+  } catch(e) {
     document.getElementById("weather").innerText = "Weather unavailable";
   }
 }
 
-/* ---------------- REAL NEWS (API) ---------------- */
-const newsData = [
+/* ============ AQI ============ */
+function aqiInfo(index) {
+  const levels = [
+    null,
+    { label: "Good",        color: "#4caf50", bg: "rgba(76,175,80,0.25)",   advice: "Air quality is great. No precautions needed." },
+    { label: "Fair",        color: "#8bc34a", bg: "rgba(139,195,74,0.25)",  advice: "Acceptable quality for most people." },
+    { label: "Moderate",    color: "#ffc107", bg: "rgba(255,193,7,0.25)",   advice: "Sensitive groups may notice mild effects." },
+    { label: "Poor",        color: "#ff9800", bg: "rgba(255,152,0,0.25)",   advice: "Everyone may start to experience effects." },
+    { label: "Very Poor",   color: "#f44336", bg: "rgba(244,67,54,0.25)",   advice: "Health alert — limit outdoor activity." },
+  ];
+  return levels[index] || levels[3];
+}
+
+async function loadAQI() {
+  try {
+    const res  = await fetch(`https://api.openweathermap.org/data/2.5/air_pollution?lat=${LAT}&lon=${LON}&appid=${OWM_KEY}`);
+    const data = await res.json();
+    const aqi  = data.list[0].main.aqi;
+    const comp = data.list[0].components;
+    const info = aqiInfo(aqi);
+
+    document.getElementById("aqi").innerHTML = `
+      <div class="aqi-main">
+        <div class="aqi-circle" style="background:${info.bg}; border: 2px solid ${info.color}; color:${info.color}">
+          <div class="aqi-num">${aqi}</div>
+          <div class="aqi-label">AQI</div>
+        </div>
+        <div class="aqi-desc-block">
+          <div class="aqi-status" style="color:${info.color}">${info.label}</div>
+          <div class="aqi-advice">${info.advice}</div>
+        </div>
+      </div>
+      <div class="aqi-components">
+        <div class="aqi-comp"><div class="comp-name">PM2.5</div><div class="comp-val">${comp.pm2_5.toFixed(1)} μg/m³</div></div>
+        <div class="aqi-comp"><div class="comp-name">PM10</div><div class="comp-val">${comp.pm10.toFixed(1)} μg/m³</div></div>
+        <div class="aqi-comp"><div class="comp-name">NO₂</div><div class="comp-val">${comp.no2.toFixed(1)} μg/m³</div></div>
+        <div class="aqi-comp"><div class="comp-name">O₃</div><div class="comp-val">${comp.o3.toFixed(1)} μg/m³</div></div>
+      </div>
+    `;
+  } catch(e) {
+    document.getElementById("aqi").innerText = "AQI unavailable";
+  }
+}
+
+/* ============ TRAFFIC ============ */
+// Two corridors: US-183A/183 (Cedar Park to north Austin) and I-35 (Round Rock to Austin)
+const trafficRoutes = [
   {
-    title: "KVUE: Austin City Council debates housing affordability plan",
-    img: "https://images.unsplash.com/photo-1508057198894-247b23fe5ade"
+    label: "US-183A / 183",
+    // Centered on 183A around Leander/Cedar Park
+    src: "https://www.google.com/maps/embed?pb=!1m14!1m12!1m3!1d27933.2!2d-97.8200!3d30.5600!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!5e0!3m2!1sen!2sus!4v1700000000000!5m2!1sen!2sus&layer=t"
   },
   {
-    title: "KVUE: Triple-digit heat expected across Central Texas this week",
-    img: "https://images.unsplash.com/photo-1501973801540-537f08ccae7b"
-  },
-  {
-    title: "KVUE: New restaurants and shops opening in Round Rock",
-    img: "https://images.unsplash.com/photo-1492724441997-5dc865305da7"
-  },
-  {
-    title: "KVUE: Heavy traffic reported along I-35 corridor",
-    img: "https://images.unsplash.com/photo-1503376780353-7e6692767b70"
-  },
-  {
-    title: "KVUE: Storm chances increase later this week in Austin area",
-    img: "https://images.unsplash.com/photo-1500674425229-f692875b0ab7"
+    label: "I-35 Corridor",
+    // Centered on I-35 Round Rock to north Austin
+    src: "https://www.google.com/maps/embed?pb=!1m14!1m12!1m3!1d27933.2!2d-97.6700!3d30.4800!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!5e0!3m2!1sen!2sus!4v1700000000001!5m2!1sen!2sus&layer=t"
   }
 ];
 
+let trafficIndex = 0;
+
+function cycleTraffic() {
+  trafficIndex = (trafficIndex + 1) % trafficRoutes.length;
+  const route = trafficRoutes[trafficIndex];
+  const iframe = document.getElementById("trafficMap");
+  const badge  = document.getElementById("trafficBadge");
+
+  iframe.style.opacity = "0";
+  setTimeout(() => {
+    iframe.src = route.src;
+    badge.innerText = route.label;
+    iframe.style.opacity = "1";
+  }, 400);
+}
+
+/* ============ NEWS ============ */
+const newsData = [
+  { title: "KVUE: Austin City Council debates housing affordability plan", img: "https://images.unsplash.com/photo-1508057198894-247b23fe5ade" },
+  { title: "KVUE: Triple-digit heat expected across Central Texas this week", img: "https://images.unsplash.com/photo-1501973801540-537f08ccae7b" },
+  { title: "KVUE: New restaurants and shops opening in Round Rock", img: "https://images.unsplash.com/photo-1492724441997-5dc865305da7" },
+  { title: "KVUE: Heavy traffic reported along I-35 corridor", img: "https://images.unsplash.com/photo-1503376780353-7e6692767b70" },
+  { title: "KVUE: Storm chances increase later this week in Austin area", img: "https://images.unsplash.com/photo-1500674425229-f692875b0ab7" }
+];
 let newsIndex = 0;
 
 function loadNews() {
   const el = document.getElementById("news");
-
-  function renderNews() {
+  function render() {
     let html = "";
-
     for (let i = 0; i < 3; i++) {
-      const index = (newsIndex + i) % newsData.length;
-
-      html += `
-        <div class="newsItem">
-          <img src="${newsData[index].img}">
-          <div class="newsText">${newsData[index].title}</div>
-        </div>
-      `;
+      const n = newsData[(newsIndex + i) % newsData.length];
+      html += `<div class="newsItem">
+        <img src="${n.img}">
+        <div class="newsText">${n.title}</div>
+      </div>`;
     }
-
     el.innerHTML = html;
     newsIndex++;
   }
-
-  renderNews();
-  setInterval(renderNews, 6000);
+  render();
+  setInterval(render, 6000);
 }
-/* ---------------- MODE ---------------- */
+
+/* ============ MODE ============ */
 function setMode() {
   const hour = new Date().getHours();
   const isDay = hour >= 9 && hour < 22;
-
   document.body.className = isDay ? "day" : "night";
-
-  document.getElementById("newsTile").style.display =
-    isDay ? "block" : "none";
 }
 
-/* ---------------- LOOP ---------------- */
-setInterval(updateTime, 1000);
-setInterval(drawClock, 1000);
+/* ============ INIT ============ */
+setMode();
+setInterval(setMode, 60 * 60 * 1000); // re-check every hour
 
 updateTime();
 drawClock();
-loadWeather();
-loadNews();
-setMode();
-setInterval(loadWeather, 900000);
-</script>
+setInterval(updateTime, 1000);
+setInterval(drawClock, 1000);
 
+loadWeather();
+setInterval(loadWeather, 15 * 60 * 1000);
+
+loadAQI();
+setInterval(loadAQI, 30 * 60 * 1000);
+
+loadNews();
+
+setInterval(cycleTraffic, 60 * 1000); // swap traffic map every minute
+
+</script>
 </body>
 </html>
