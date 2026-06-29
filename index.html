@@ -197,46 +197,35 @@ async function loadNews() {
   const el = document.getElementById("news");
 
   try {
-    el.innerHTML = "Fetching KVUE feed...";
+    el.innerHTML = "Loading KVUE headlines...";
 
-    const url = "https://www.kvue.com/feeds/syndication/rss/news";
+    const feedURL = "https://www.kvue.com/feeds/syndication/rss/news";
 
     const res = await fetch(
-      "https://api.allorigins.win/raw?url=" + encodeURIComponent(url)
+      "https://api.rss.app/v1/feeds?feed_url=" + encodeURIComponent(feedURL)
     );
 
-    if (!res.ok) {
-      throw new Error("HTTP error: " + res.status);
+    const data = await res.json();
+
+    if (!data.items || data.items.length === 0) {
+      throw new Error("No articles");
     }
 
-    const text = await res.text();
+    const articles = data.items.slice(0, 5);
 
-    if (!text || text.length < 50) {
-      throw new Error("Empty RSS response");
-    }
-
-    const parser = new DOMParser();
-    const xml = parser.parseFromString(text, "text/xml");
-
-    const items = xml.querySelectorAll("item");
-
-    if (!items.length) {
-      throw new Error("No RSS items found");
-    }
-
-    let output = [];
-
-    for (let i = 0; i < Math.min(5, items.length); i++) {
-      const title = items[i].querySelector("title")?.textContent;
-      if (title) output.push("• " + title);
-    }
-
-    el.innerHTML = output.join("<br>");
+    el.innerHTML = articles
+      .map(a => `• ${a.title}`)
+      .join("<br>");
 
   } catch (err) {
     console.log("NEWS ERROR:", err);
-    el.innerHTML =
-      "📰 KVUE news failed (check console)";
+
+    // fallback so your site NEVER looks broken
+    el.innerHTML = `
+      • KVUE feed unavailable right now<br>
+      • Check connection or try again later<br>
+      • Dashboard still running normally
+    `;
   }
 }
 /* ---------------- MODE ---------------- */
