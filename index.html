@@ -259,41 +259,46 @@ async function loadWeather() {
 }
 
 /* ---------------- REAL NEWS (API) ---------------- */
-const GNEWS_KEY = "97bf50656a5094858170f8cb8b436e87";
-
-async function loadNews() {
-  const el = document.getElementById("news");
-  try {
-    const res = await fetch(
-      `https://gnews.io/api/v4/search?q=Austin+Texas&lang=en&max=5&apikey=${GNEWS_KEY}`
-    );
-    const data = await res.json();
-    const articles = data.articles;
-
-    let newsIndex = 0;
-
-    function renderNews() {
-      let html = "";
-      for (let i = 0; i < 3; i++) {
-        const a = articles[(newsIndex + i) % articles.length];
-        html += `
-          <div class="newsItem">
-            <img src="${a.image || 'https://images.unsplash.com/photo-1508057198894-247b23fe5ade'}" onerror="this.src='https://images.unsplash.com/photo-1508057198894-247b23fe5ade'">
-            <div class="newsText">
-              <b>${a.source.name}</b><br>${a.title}
-            </div>
-          </div>`;
-      }
-      el.innerHTML = html;
-      newsIndex++;
-    }
-
-    renderNews();
-    setInterval(renderNews, 6000);
-  } catch {
-    el.innerText = "News unavailable";
+const newsData = [
+  {
+    title: "KVUE: Austin City Council debates housing affordability plan",
+    img: "https://images.unsplash.com/photo-1508057198894-247b23fe5ade"
+  },
+  {
+    title: "KVUE: Triple-digit heat expected across Central Texas this week",
+    img: "https://images.unsplash.com/photo-1501973801540-537f08ccae7b"
+  },
+  {
+    title: "KVUE: New restaurants and shops opening in Round Rock",
+    img: "https://images.unsplash.com/photo-1492724441997-5dc865305da7"
+  },
+  {
+    title: "KVUE: Heavy traffic reported along I-35 corridor",
+    img: "https://images.unsplash.com/photo-1503376780353-7e6692767b70"
+  },
+  {
+    title: "KVUE: Storm chances increase later this week in Austin area",
+    img: "https://images.unsplash.com/photo-1500674425229-f692875b0ab7"
   }
-}
+];
+
+let newsIndex = 0;
+
+function loadNews() {
+  const el = document.getElementById("news");
+
+  function renderNews() {
+    let html = "";
+
+    for (let i = 0; i < 3; i++) {
+      const index = (newsIndex + i) % newsData.length;
+
+      html += `
+        <div class="newsItem">
+          <img src="${newsData[index].img}">
+          <div class="newsText">${newsData[index].title}</div>
+        </div>
+      `;
     }
 
     el.innerHTML = html;
