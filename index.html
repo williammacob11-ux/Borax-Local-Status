@@ -196,19 +196,29 @@ async function loadWeather() {
 async function loadNews() {
   try {
     const res = await fetch(
-      "https://api.rss2json.com/v1/api.json?rss_url=https://www.kvue.com/feeds/syndication/rss/news"
+      "https://api.allorigins.win/raw?url=" +
+      encodeURIComponent("https://www.kvue.com/feeds/syndication/rss/news")
     );
 
-    const data = await res.json();
+    const text = await res.text();
 
-    const items = data.items.slice(0, 5);
+    const parser = new DOMParser();
+    const xml = parser.parseFromString(text, "text/xml");
 
-    document.getElementById("news").innerHTML =
-      items.map(item => `• ${item.title}`).join("<br>");
+    const items = xml.querySelectorAll("item");
+
+    let output = [];
+
+    for (let i = 0; i < Math.min(5, items.length); i++) {
+      const title = items[i].querySelector("title")?.textContent;
+      if (title) output.push("• " + title);
+    }
+
+    document.getElementById("news").innerHTML = output.join("<br>");
 
   } catch (err) {
     document.getElementById("news").innerHTML =
-      "📰 KVUE news failed to load";
+      "📰 KVUE news temporarily unavailable";
     console.log(err);
   }
 }
