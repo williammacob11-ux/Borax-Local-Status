@@ -193,39 +193,29 @@ async function loadWeather() {
 }
 
 /* ---------------- REAL NEWS (API) ---------------- */
+const NEWS_KEY = "97bf50656a5094858170f8cb8b436e87";
+
 async function loadNews() {
   const el = document.getElementById("news");
 
   try {
-    el.innerHTML = "Loading KVUE headlines...";
-
-    const feedURL = "https://www.kvue.com/feeds/syndication/rss/news";
+    el.innerHTML = "Loading real news...";
 
     const res = await fetch(
-      "https://api.rss.app/v1/feeds?feed_url=" + encodeURIComponent(feedURL)
+      `https://gnews.io/api/v4/search?q=Austin&lang=en&max=5&apikey=${NEWS_KEY}`
     );
 
     const data = await res.json();
 
-    if (!data.items || data.items.length === 0) {
-      throw new Error("No articles");
-    }
+    if (!data.articles) throw new Error();
 
-    const articles = data.items.slice(0, 5);
-
-    el.innerHTML = articles
+    el.innerHTML = data.articles
       .map(a => `• ${a.title}`)
       .join("<br>");
 
   } catch (err) {
-    console.log("NEWS ERROR:", err);
-
-    // fallback so your site NEVER looks broken
-    el.innerHTML = `
-      • KVUE feed unavailable right now<br>
-      • Check connection or try again later<br>
-      • Dashboard still running normally
-    `;
+    el.innerHTML = "📰 News unavailable";
+    console.log(err);
   }
 }
 /* ---------------- MODE ---------------- */
