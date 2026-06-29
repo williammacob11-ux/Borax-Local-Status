@@ -6,57 +6,86 @@
   <style>
     body {
       margin: 0;
-      background: #001022;
-      color: white;
       font-family: Arial;
-      text-align: center;
+      color: white;
+      transition: background 1s ease;
     }
 
-    .box {
-      width: 420px;
-      margin: 120px auto;
-      border: 2px solid white;
+    /* DAY MODE BACKGROUND */
+    body.day {
+      background: url("https://images.unsplash.com/photo-1500530855697-b586d89ba3ee") center/cover no-repeat;
+    }
+
+    /* NIGHT MODE BACKGROUND */
+    body.night {
+      background: #000;
+    }
+
+    .container {
+      display: grid;
+      gap: 15px;
       padding: 20px;
-      background: rgba(0,0,0,0.4);
+      height: 100vh;
+      box-sizing: border-box;
     }
 
-    #time {
-      font-size: 60px;
+    /* DAY LAYOUT */
+    body.day .container {
+      grid-template-columns: 1fr 1fr 1fr;
     }
 
-    #date {
-      font-size: 18px;
-      opacity: 0.8;
+    /* NIGHT LAYOUT */
+    body.night .container {
+      grid-template-columns: 1fr 1fr;
     }
 
-    #info {
-      margin-top: 20px;
-      font-size: 18px;
-      white-space: pre-line;
-      min-height: 80px;
+    .tile {
+      background: rgba(0,0,0,0.6);
+      border: 1px solid white;
+      padding: 20px;
+      backdrop-filter: blur(5px);
+    }
+
+    .timeBig {
+      font-size: 48px;
+    }
+
+    canvas {
+      background: transparent;
     }
   </style>
 </head>
 
 <body>
 
-  <div class="box">
-    <h3>BORAX LOCAL STATUS</h3>
+<div class="container">
 
-    <div id="time">--:--</div>
+  <!-- TIME TILE -->
+  <div class="tile" id="timeTile">
+    <h3>TIME</h3>
+    <div class="timeBig" id="time">--:--</div>
     <div id="date">---</div>
-
-    <div id="info">Starting broadcast...</div>
+    <canvas id="clock" width="120" height="120"></canvas>
   </div>
 
-<script>
-let screens = [
-  "AD: BORAX Laundry - Trusted since 1982",
-  "LOCAL NOTICE: Stay hydrated today",
-  "COMMUNITY: Round Rock parks open"
-];
+  <!-- WEATHER TILE -->
+  <div class="tile">
+    <h3>ROUND ROCK WEATHER</h3>
+    <div id="weather">Loading...</div>
+  </div>
 
-let i = 0;
+  <!-- NEWS TILE (only visible in day mode) -->
+  <div class="tile" id="newsTile">
+    <h3>AUSTIN NEWS</h3>
+    <div id="news">
+      Loading headlines...
+    </div>
+  </div>
+
+</div>
+
+<script>
+const API_KEY = "69d758106d8333cb8e806b8d3bff6d15";
 
 function updateTime() {
   const now = new Date();
@@ -73,41 +102,86 @@ function updateTime() {
   document.getElementById("date").innerText = now.toDateString();
 }
 
-function rotate() {
-  document.getElementById("info").innerText = screens[i];
-  i = (i + 1) % screens.length;
+function drawClock() {
+  const canvas = document.getElementById("clock");
+  const ctx = canvas.getContext("2d");
+  const now = new Date();
+
+  ctx.clearRect(0,0,120,120);
+
+  const radius = 50;
+  ctx.translate(60,60);
+
+  ctx.beginPath();
+  ctx.arc(0,0,radius,0,2*Math.PI);
+  ctx.strokeStyle="white";
+  ctx.stroke();
+
+  ctx.save();
+  const hr = now.getHours() % 12;
+  ctx.rotate((hr*Math.PI/6));
+  ctx.beginPath();
+  ctx.moveTo(0,0);
+  ctx.lineTo(0,-25);
+  ctx.stroke();
+  ctx.restore();
+
+  ctx.save();
+  ctx.rotate((now.getMinutes()*Math.PI/30));
+  ctx.beginPath();
+  ctx.moveTo(0,0);
+  ctx.lineTo(0,-40);
+  ctx.stroke();
+  ctx.restore();
+
+  ctx.setTransform(1,0,0,1,0,0);
 }
 
-// 🌤️ REAL WEATHER (Round Rock)
 async function loadWeather() {
   try {
-    const apiKey = "69d758106d8333cb8e806b8d3bff6d15";
-
     const res = await fetch(
-      `https://api.openweathermap.org/data/2.5/weather?lat=30.5083&lon=-97.6789&units=imperial&appid=${apiKey}`
+      `https://api.openweathermap.org/data/2.5/weather?lat=30.5083&lon=-97.6789&units=imperial&appid=${API_KEY}`
     );
 
     const data = await res.json();
 
-    const temp = Math.round(data.main.temp);
-    const condition = data.weather[0].main; // CLEAN real label
-    const desc = data.weather[0].description;
+    document.getElementById("weather").innerHTML =
+      `${Math.round(data.main.temp)}°F<br>
+       ${data.weather[0].main}<br>
+       Humidity: ${data.main.humidity}%`;
 
-    screens.push(
-      `WEATHER:\n${temp}°F\n${condition} (${desc})`
-    );
-
-  } catch (e) {
-    screens.push("WEATHER: Unable to load data");
+  } catch {
+    document.getElementById("weather").innerText = "Weather unavailable";
   }
 }
 
+function loadNews() {
+  document.getElementById("news").innerHTML = `
+    • Austin expands tech jobs downtown<br>
+    • I-35 construction updates continue<br>
+    • Round Rock ISD announces events
+  `;
+}
+
+function setMode() {
+  const hour = new Date().getHours();
+  const isDay = hour >= 9 && hour < 22;
+
+  document.body.className = isDay ? "day" : "night";
+
+  document.getElementById("newsTile").style.display =
+    isDay ? "block" : "none";
+}
+
 setInterval(updateTime, 1000);
-setInterval(rotate, 5000);
+setInterval(drawClock, 1000);
 
 updateTime();
-rotate();
+drawClock();
 loadWeather();
+loadNews();
+setMode();
 </script>
+
 </body>
 </html>
