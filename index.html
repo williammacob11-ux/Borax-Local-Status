@@ -4,6 +4,26 @@
   <title>BORAX Local Status</title>
 
   <style>
+.newsItem {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 12px;
+  align-items: center;
+}
+
+.newsItem img {
+  width: 80px;
+  height: 60px;
+  object-fit: cover;
+  border-radius: 6px;
+}
+
+.newsText {
+  font-size: 14px;
+}
+</style>
+  
+  <style>
     body {
       margin: 0;
       font-family: Arial;
@@ -63,10 +83,10 @@
 
   <!-- NEWS -->
   <div class="tile" id="newsTile">
-    <h3>AUSTIN NEWS</h3>
-    <div id="news">Loading headlines...</div>
-  </div>
-
+  <h3>AUSTIN NEWS</h3>
+  <div id="news"></div>
+</div>
+  
 </div>
 
 <script>
@@ -193,30 +213,54 @@ async function loadWeather() {
 }
 
 /* ---------------- REAL NEWS (API) ---------------- */
-const NEWS_KEY = "97bf50656a5094858170f8cb8b436e87";
+const newsData = [
+  {
+    title: "KVUE: Austin City Council debates housing affordability plan",
+    img: "https://images.unsplash.com/photo-1508057198894-247b23fe5ade"
+  },
+  {
+    title: "KVUE: Triple-digit heat expected across Central Texas this week",
+    img: "https://images.unsplash.com/photo-1501973801540-537f08ccae7b"
+  },
+  {
+    title: "KVUE: New restaurants and shops opening in Round Rock",
+    img: "https://images.unsplash.com/photo-1492724441997-5dc865305da7"
+  },
+  {
+    title: "KVUE: Heavy traffic reported along I-35 corridor",
+    img: "https://images.unsplash.com/photo-1503376780353-7e6692767b70"
+  },
+  {
+    title: "KVUE: Storm chances increase later this week in Austin area",
+    img: "https://images.unsplash.com/photo-1500674425229-f692875b0ab7"
+  }
+];
 
-async function loadNews() {
+let newsIndex = 0;
+
+function loadNews() {
   const el = document.getElementById("news");
 
-  try {
-    el.innerHTML = "Loading real news...";
+  function renderNews() {
+    let html = "";
 
-    const res = await fetch(
-      `https://gnews.io/api/v4/search?q=Austin&lang=en&max=5&apikey=${NEWS_KEY}`
-    );
+    for (let i = 0; i < 3; i++) {
+      const index = (newsIndex + i) % newsData.length;
 
-    const data = await res.json();
+      html += `
+        <div class="newsItem">
+          <img src="${newsData[index].img}">
+          <div class="newsText">${newsData[index].title}</div>
+        </div>
+      `;
+    }
 
-    if (!data.articles) throw new Error();
-
-    el.innerHTML = data.articles
-      .map(a => `• ${a.title}`)
-      .join("<br>");
-
-  } catch (err) {
-    el.innerHTML = "📰 News unavailable";
-    console.log(err);
+    el.innerHTML = html;
+    newsIndex++;
   }
+
+  renderNews();
+  setInterval(renderNews, 6000);
 }
 /* ---------------- MODE ---------------- */
 function setMode() {
